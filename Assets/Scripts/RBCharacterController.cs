@@ -63,6 +63,7 @@ public class RBCharacterController : MonoBehaviour
         }
         
         goalSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        anim.SetBool("isSprinting?", Input.GetKey(KeyCode.LeftShift));
         speed = Mathf.Lerp(speed, goalSpeed, speedLerp * Time.deltaTime);
         _input *= (speed * Time.deltaTime);
     }
@@ -117,25 +118,30 @@ public class RBCharacterController : MonoBehaviour
 
         if (_isGrounded)
         {
+            anim.SetBool("isGrounded?", true);
+            //Debug.Log("grounded");
             _rb.velocity = Vector3.SmoothDamp(_rb.velocity, new Vector3(_input.x, _rb.velocity.y, _input.z),
                 ref _velocity, 0.1f);
         }
         else //Air Control
         {
+            anim.SetBool("isGrounded?", false);
             _rb.AddForce(new Vector3(_input.x,0f,_input.z) * 1.6f, ForceMode.Acceleration);
             if (_rb.velocity.sqrMagnitude > airSpeed * airSpeed)
             {
+                //Debug.Log("in air");
                 _rb.velocity = _rb.velocity.normalized * airSpeed;
             }
         }
     }
-
+    
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(transform.position +groundCheckOffset, groundCheckRadius);
         Gizmos.DrawSphere(transform.position + groundCheckOffset + (Vector3.down * groundCHeckDistance), groundCheckRadius);
     }
+    
 
     private bool CheckGrounded()
     {
