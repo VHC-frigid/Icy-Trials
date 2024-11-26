@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RBCharacterController : MonoBehaviour
@@ -9,29 +10,35 @@ public class RBCharacterController : MonoBehaviour
     private Rigidbody _rb;
     public Transform cameraPivot;
 
-    public float speed = 10f;
-    public float maxSpeed = 10f;
+    public Transform modelMesh;
+    public Vector3 groundCheckOffset; //offset was refactored to groundCheckOffset
+    public float walkSpeed = 500f, runSpeed = 1000f;
+    public float speed = 500f, goalSpeed = 0f;
+    public float airSpeed = 10f;
     public float jump = 5f;
     public float groundCheckRadius;
     public float groundCHeckDistance;
     public float coyoteTime = 0.5f;
     public float jumpeBufferTime = 0.25f;
+    public float modelLerp = 5, speedLerp = 5;
 
+    private Animator anim;
     //private Vector3 movementVector;
     private Vector3 _input;
+    private Vector3 camerPivot;
+    private Vector3 _velocity;
+    private Vector3 playerDirection;
     private bool _isGrounded;
     private float _coyoteTimer = float.NegativeInfinity;
     private bool _isJumping = false;
-    public Vector3 groundCheckOffset; //offset was refactored to groundCheckOffset
-    private Vector3 _velocity;
     private bool _jumpBuffer = false;
     private float _jumpBufferTimer = 0f;
-    private Vector3 camerPivot;
     
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
-        //cameraPivot = GetComponentInChildren<Camera>();
+        anim = GetComponentInChildren<Animator>();
+        playerDirection = transform.forward;
     }
 
     // Update is called once per frame
@@ -46,6 +53,18 @@ public class RBCharacterController : MonoBehaviour
         //Define our movement vector based on Player input. Normalise to avoid diagonal exploits
         _input = (forwardFlat * Input.GetAxis("Vertical")) + (sideFlat * Input.GetAxis("Horizontal"));
         _input = Vector3.ClampMagnitude(_input, 1);
+        
+        playerDirection = Vector3.Slerp(playerDirection, _input.magnitude > 0 ? _input : playerDirection, modelLerp * Time.deltaTime);
+        modelMesh.transform.rotation = Quaternion.LookRotation(playerDirection);
+        
+        if (_input.magnitude > 1)
+        {
+            _input.Normalize();
+        }
+        
+        goalSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        speed = Mathf.Lerp(speed, goalSpeed, speedLerp * Time.deltaTime);
+        _input *= (speed * Time.deltaTime);
     }
 
     private void JumpInput()
@@ -89,18 +108,12 @@ public class RBCharacterController : MonoBehaviour
     private void MovementInput()
     {
         _input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        anim.SetBool("isWalking?", _input.magnitude > 0);
     }
 
     private void FixedUpdate()
     {
         _isGrounded = CheckGrounded();
-
-        if (_input.magnitude > 1)
-        {
-            _input.Normalize();
-        }
-
-        _input *= (speed * Time.deltaTime);
 
         if (_isGrounded)
         {
@@ -110,9 +123,9 @@ public class RBCharacterController : MonoBehaviour
         else //Air Control
         {
             _rb.AddForce(new Vector3(_input.x,0f,_input.z) * 1.6f, ForceMode.Acceleration);
-            if (_rb.velocity.sqrMagnitude > maxSpeed * maxSpeed)
+            if (_rb.velocity.sqrMagnitude > airSpeed * airSpeed)
             {
-                _rb.velocity = _rb.velocity.normalized * maxSpeed;
+                _rb.velocity = _rb.velocity.normalized * airSpeed;
             }
         }
     }
