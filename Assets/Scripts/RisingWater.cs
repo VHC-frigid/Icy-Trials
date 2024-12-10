@@ -19,7 +19,10 @@ public class RisingWater : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             print("works");
-            SceneManager.LoadScene(0);
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            
         }
     }
 }

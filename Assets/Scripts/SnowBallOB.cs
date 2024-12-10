@@ -9,6 +9,10 @@ public class SnowBallOB : MonoBehaviour
     public float bounceForce;
     private Vector3 velocity;
 
+    public void Start()
+    {
+        playerRigidbody = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
+    }
     private void Update()
     {
         velocity = playerRigidbody.velocity;

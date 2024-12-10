@@ -22,8 +22,8 @@ public class RBCharacterController : MonoBehaviour
     public float jumpeBufferTime = 0.25f;
     public float modelLerp = 5, speedLerp = 5;
 
-    private Animator anim;
     //private Vector3 movementVector;
+    private Animator anim;
     private Vector3 _input;
     private Vector3 camerPivot;
     private Vector3 _velocity;
@@ -33,6 +33,13 @@ public class RBCharacterController : MonoBehaviour
     private bool _isJumping = false;
     private bool _jumpBuffer = false;
     private float _jumpBufferTimer = 0f;
+
+    private bool canDash = true;
+    private bool isDashing;
+    public float dashForce;
+    public float dashingTime;
+    public float dashCooldown;
+    
     
     void Start()
     {
@@ -46,12 +53,17 @@ public class RBCharacterController : MonoBehaviour
     {
         MovementInput();
         JumpInput();
+
+        if (Input.GetKeyDown(KeyCode.E) && canDash)
+        {
+            StartCoroutine(Dash());
+        }
         
         Vector3 forwardFlat = new Vector3(cameraPivot.forward.x, 0, cameraPivot.forward.z).normalized;
         Vector3 sideFlat = new Vector3(cameraPivot.right.x, 0, cameraPivot.right.z).normalized;
 
         //Define our movement vector based on Player input. Normalise to avoid diagonal exploits
-        _input = (forwardFlat * Input.GetAxis("Vertical")) + (sideFlat * Input.GetAxis("Horizontal"));
+        _input = (forwardFlat * Input.GetAxisRaw("Vertical")) + (sideFlat * Input.GetAxisRaw("Horizontal"));
         _input = Vector3.ClampMagnitude(_input, 1);
         
         playerDirection = Vector3.Slerp(playerDirection, _input.magnitude > 0 ? _input : playerDirection, modelLerp * Time.deltaTime);
@@ -105,6 +117,8 @@ public class RBCharacterController : MonoBehaviour
         _coyoteTimer = float.NegativeInfinity;
         _isJumping = true;
     }
+    
+    
 
     private void MovementInput()
     {
@@ -120,8 +134,7 @@ public class RBCharacterController : MonoBehaviour
         {
             anim.SetBool("isGrounded?", true);
             //Debug.Log("grounded");
-            _rb.velocity = Vector3.SmoothDamp(_rb.velocity, new Vector3(_input.x, _rb.velocity.y, _input.z),
-                ref _velocity, 0.1f);
+            _rb.velocity = Vector3.SmoothDamp(_rb.velocity, new Vector3(_input.x, _rb.velocity.y, _input.z), ref _velocity, 0.1f);
         }
         else //Air Control
         {
@@ -159,4 +172,25 @@ public class RBCharacterController : MonoBehaviour
         _isJumping = false;
         return false;
     }
+
+    //original dash before cooldown
+    /*private void Dash()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            _rb.AddForce(-playerDirection * -dashForce, ForceMode.Impulse);
+        }
+    }*/
+
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        isDashing = true;
+        _rb.AddForce(-playerDirection * -dashForce, ForceMode.Impulse);
+        yield return new WaitForSeconds(dashingTime);
+        isDashing = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
 }

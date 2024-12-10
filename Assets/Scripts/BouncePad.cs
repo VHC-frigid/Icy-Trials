@@ -6,6 +6,7 @@ public class BouncePad : MonoBehaviour
 {
     public Rigidbody playerRigidbody;
     public float bounceForce;
+    
     public void OnTriggerEnter(Collider other)
     {
         if(other.tag == "Player")
