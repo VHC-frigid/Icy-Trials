@@ -58,26 +58,6 @@ public class RBCharacterController : MonoBehaviour
         {
             StartCoroutine(Dash());
         }
-        
-        Vector3 forwardFlat = new Vector3(cameraPivot.forward.x, 0, cameraPivot.forward.z).normalized;
-        Vector3 sideFlat = new Vector3(cameraPivot.right.x, 0, cameraPivot.right.z).normalized;
-
-        //Define our movement vector based on Player input. Normalise to avoid diagonal exploits
-        _input = (forwardFlat * Input.GetAxisRaw("Vertical")) + (sideFlat * Input.GetAxisRaw("Horizontal"));
-        _input = Vector3.ClampMagnitude(_input, 1);
-        
-        playerDirection = Vector3.Slerp(playerDirection, _input.magnitude > 0 ? _input : playerDirection, modelLerp * Time.deltaTime);
-        modelMesh.transform.rotation = Quaternion.LookRotation(playerDirection);
-        
-        if (_input.magnitude > 1)
-        {
-            _input.Normalize();
-        }
-        
-        goalSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
-        anim.SetBool("isSprinting?", Input.GetKey(KeyCode.LeftShift));
-        speed = Mathf.Lerp(speed, goalSpeed, speedLerp * Time.deltaTime);
-        _input *= (speed * Time.deltaTime);
     }
 
     private void JumpInput()
@@ -118,12 +98,25 @@ public class RBCharacterController : MonoBehaviour
         _isJumping = true;
     }
     
-    
-
     private void MovementInput()
     {
-        _input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        // when moving make the walking animation happen.
         anim.SetBool("isWalking?", _input.magnitude > 0);
+        
+        Vector3 forwardFlat = new Vector3(cameraPivot.forward.x, 0, cameraPivot.forward.z).normalized;
+        Vector3 sideFlat = new Vector3(cameraPivot.right.x, 0, cameraPivot.right.z).normalized;
+
+        //Define our movement vector based on Player input. Normalise to avoid diagonal exploits
+        _input = (forwardFlat * Input.GetAxis("Vertical")) + (sideFlat * Input.GetAxis("Horizontal"));
+        _input = Vector3.ClampMagnitude(_input, 1);
+        
+        playerDirection = Vector3.Slerp(playerDirection, _input.magnitude > 0 ? _input : playerDirection, modelLerp * Time.deltaTime);
+        modelMesh.transform.rotation = Quaternion.LookRotation(playerDirection);
+        
+        goalSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        anim.SetBool("isSprinting?", Input.GetKey(KeyCode.LeftShift));
+        speed = Mathf.Lerp(speed, goalSpeed, speedLerp * Time.deltaTime);
+        _input *= (speed * Time.deltaTime);
     }
 
     private void FixedUpdate()
@@ -160,8 +153,7 @@ public class RBCharacterController : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.SphereCast(transform.position + groundCheckOffset, groundCheckRadius, Vector3.down, out hit,
-                groundCHeckDistance))
+        if (Physics.SphereCast(transform.position + groundCheckOffset, groundCheckRadius, Vector3.down, out hit, groundCHeckDistance))
         {
             if (_isJumping)
                 return false;
