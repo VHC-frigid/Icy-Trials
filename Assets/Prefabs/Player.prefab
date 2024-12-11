@@ -211,11 +211,11 @@ MonoBehaviour:
   modelMesh: {fileID: 2941796263840986814}
   groundCheckOffset: {x: 0, y: -0.45, z: 0}
   walkSpeed: 50
-  runSpeed: 80
+  runSpeed: 70
   speed: 0
   goalSpeed: 0
   airSpeed: 10
-  jump: 5
+  jump: 7
   groundCheckRadius: 0.5
   groundCHeckDistance: 0.11
   coyoteTime: 0.5
@@ -232,7 +232,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6372895747007454926}
-  m_Material: {fileID: 13400000, guid: 21f4dc08dd5cb044b8df00cec36d1b28, type: 2}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

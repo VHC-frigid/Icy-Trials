@@ -24,5 +24,10 @@ public class RisingWater : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             
         }
+
+        if (other.gameObject.CompareTag("Snowball"))
+        {
+            Destroy(other.gameObject);
+        }
     }
 }

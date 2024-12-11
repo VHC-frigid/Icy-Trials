@@ -58,6 +58,20 @@ public class RBCharacterController : MonoBehaviour
         {
             StartCoroutine(Dash());
         }
+        _isGrounded = CheckGrounded();
+
+        if (_isGrounded)
+        {
+            anim.SetBool("isGrounded?", true);
+            //Debug.Log("grounded");
+            _rb.velocity = (_input * goalSpeed) + (Vector3.up * _rb.velocity.y); 
+        }
+        else //Air Control
+        {
+            anim.SetBool("isGrounded?", false);
+            //_rb.AddForce(new Vector3(_input.x,0f,_input.z) * 1.6f, ForceMode.Acceleration);
+            _rb.velocity = new Vector3(_input.x * goalSpeed,_rb.velocity.y,_input.z * goalSpeed);
+        }
     }
 
     private void JumpInput()
@@ -121,25 +135,7 @@ public class RBCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _isGrounded = CheckGrounded();
-
-        if (_isGrounded)
-        {
-            anim.SetBool("isGrounded?", true);
-            //Debug.Log("grounded");
-            //_rb.velocity = Vector3.SmoothDamp(_rb.velocity, new Vector3(_input.x, _rb.velocity.y, _input.z), ref _velocity, 0.02f); 
-            _rb.velocity = (_input * goalSpeed);
-        }
-        else //Air Control
-        {
-            anim.SetBool("isGrounded?", false);
-            _rb.AddForce(new Vector3(_input.x,0f,_input.z) * 1.6f, ForceMode.Acceleration);
-            if (_rb.velocity.sqrMagnitude > airSpeed * airSpeed)
-            {
-                //Debug.Log("in air");
-                _rb.velocity = _rb.velocity.normalized * airSpeed;
-            }
-        }
+        
     }
     
     private void OnDrawGizmos()
