@@ -127,7 +127,8 @@ public class RBCharacterController : MonoBehaviour
         {
             anim.SetBool("isGrounded?", true);
             //Debug.Log("grounded");
-            _rb.velocity = Vector3.SmoothDamp(_rb.velocity, new Vector3(_input.x, _rb.velocity.y, _input.z), ref _velocity, 0.1f);
+            //_rb.velocity = Vector3.SmoothDamp(_rb.velocity, new Vector3(_input.x, _rb.velocity.y, _input.z), ref _velocity, 0.02f); 
+            _rb.velocity = (_input * goalSpeed);
         }
         else //Air Control
         {

@@ -23,10 +23,11 @@ public class SnowBallOB : MonoBehaviour
         var speed = velocity.magnitude;
         if(coll.gameObject.tag == "Player")
         {
+            // When the player collides with a snowball calculate the direction & normal, And grab the player's rigid body.
             print("Collided with player");
-            // When the player collides with the snowball we need to launch the player away.
             Vector3 dir = (coll.gameObject.transform.position - transform.position).normalized;
             Rigidbody rb = coll.gameObject.GetComponent<Rigidbody>();
+            // use the rigidbody and the direction times the public bounce force to use apply velocity to the player.
             Vector3 v = -rb.velocity + dir * bounceForce;
             rb.velocity += v;
         }
